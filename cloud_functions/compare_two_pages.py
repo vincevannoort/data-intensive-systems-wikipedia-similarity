@@ -8,11 +8,9 @@ def lambda_handler(event, context):
     The lambda handler
     """
     print("Started lambda handler")
-    compare_two_files(event['file1'], event['file2'])
     print("Finished lambda handler")
     return {
-        'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
+        'similarity': compare_two_files(event['file1'], event['file2'])
     }
 
 def jaccard_similarity(list1, list2):
@@ -57,4 +55,4 @@ def compare_two_files(file_1_json, file_2_json) -> float:
         similarity = jaccard_similarity(file_1_links, file_2_links)
         similarities.append(similarity)
 
-    print(statistics.mean(similarities))
+    return statistics.mean(similarities)

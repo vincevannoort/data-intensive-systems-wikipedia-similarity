@@ -1,0 +1,31 @@
+[
+  {
+    "info": {
+      "revid": 1,
+      "parentid": 1019589374,
+      "minor": "",
+      "user": "OAbot",
+      "timestamp": "2021-05-04T17:42:00",
+      "comment": "[[Wikipedia:OABOT|Open access bot]]: hdl added to citation with #oabot."
+    },
+    "links": [
+      "aaa",
+      "bbb",
+      "life"
+    ]
+  },
+  {
+    "info": {
+      "revid": 2,
+      "parentid": 1019589374,
+      "minor": "",
+      "user": "OAbot",
+      "timestamp": "2021-05-02T17:42:00",
+      "comment": "[[Wikipedia:OABOT|Open access bot]]: hdl added to citation with #oabot."
+    },
+    "links": [
+      "aaa",
+      "bbb"
+    ]
+  }
+]

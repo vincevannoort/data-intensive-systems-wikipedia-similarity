@@ -21,10 +21,75 @@ def open_files_and_compare(files: Tuple[str, str]):
         score = compare_two_files(file_1_json, file_2_json)
         return score
 
-def compare_files(spark):
+def compare_files_local(spark):
     files = get_files_list()
     perms = make_permutations(files)
 
     parallel_perms = spark.parallelize(perms)
     parallel_perms_map_result = parallel_perms.map(open_files_and_compare)
     print(parallel_perms_map_result.collect())
+
+def compare_files_cloud(spark, session):
+    s3_client = session.client('s3', 'us-east-1')
+    bucket = s3_client.list_objects(Bucket='data-intensive-storage')['Contents']
+    files = [file['Key'] for file in bucket]
+    perms = make_permutations(files)
+
+    def compare_files(perm):
+        lambda_client = session.client('lambda', 'us-east-1')
+        (key1, key2) = perm
+        result = lambda_client.invoke(
+            FunctionName='page-history-similarity',
+            InvocationType='RequestResponse',
+            Payload=bytes(
+                json.dumps({
+                'key1': key1,
+                'key2': key2,
+                }), 
+                encoding='utf8'
+            )
+        )
+        return json.loads(result['Payload'].read())
+
+    parallel_perms = spark.parallelize(perms)
+    parallel_perms_map_result = parallel_perms.map(compare_files)
+    print(parallel_perms_map_result.collect())
+
+    # tasks = [compare_files(perm) for perm in perms]
+    # loop = asyncio.get_event_loop()
+    # cors = asyncio.wait(tasks)
+    # loop.run_until_complete(cors)
+    # print(results)
+
+    # import asyncio
+    # import time
+
+
+    # async def sum(name):
+    #     total = 0
+    #     for number in numbers:
+    #         print(f'Task {name}: Computing {total}+{number}')
+    #         total += number
+    #     print(f'Task {name}: Sum = {total}\n')
+
+
+    # loop = asyncio.get_event_loop()
+    # tasks = [loop.create_task(compare_files(perm)) for perm in perms]
+    # loop.run_until_complete(asyncio.wait(tasks))
+    # loop.close()
+
+
+
+    # result = lambda_client.invoke(
+    #     FunctionName='page-history-similarity',
+    #     InvocationType='RequestResponse',
+    #     Payload=bytes(
+    #         json.dumps({
+    #         'key1': '16554664-Living systems.json',
+    #         'key2': '8553751-Biological organisation.json',
+    #         }), 
+    #         encoding='utf8'
+    #     )
+    # )
+
+    # print(json.loads(result['Payload'].read()))

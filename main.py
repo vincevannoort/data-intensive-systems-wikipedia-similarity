@@ -3,41 +3,42 @@
 Usage:
   main.py download single <page>
   main.py download multiple (<pages>)
-  main.py compare all
+  main.py upload all
+  main.py compare local
+  main.py compare cloud
 
 Examples:
   main.py download single 'The Seven Pillars of Life'
   main.py download multiple 'The Seven Pillars of Life','Life','Biological organisation','Carbon-based life','Living systems','Non-cellular life'
 """
 
-
 from config import settings
-from pipelines.compare_pages import compare_files
+from pipelines.compare_pages import compare_files_local, compare_files_cloud
 from pipelines.download_pages import download_pages
+from pipelines.upload_pages import upload_pages
 from cloud_functions.download_page import download_page
 from docopt import docopt
 from pyspark import SparkContext, SparkConf
+import boto3
 
 conf = SparkConf().setAppName('WikipediaSimilarity').setMaster('local[*]')
 spark = SparkContext(conf=conf)
 
+session = boto3.Session(
+    aws_access_key_id = settings['aws_access_key_id'],
+    aws_secret_access_key = settings['aws_access_access_key'],
+    aws_session_token = settings['aws_session_token']
+)
 
 # compare_files()
 import random
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
-
-    # NUM_SAMPLES = 100000
-    # def inside(p):
-    #   x, y = random.random(), random.random()
-    #   return x*x + y*y < 1
-    # count = sc.parallelize(range(0, NUM_SAMPLES)).filter(inside).count()
-    # pi = 4 * count / NUM_SAMPLES
-    # print(f'Pi is roughly: {pi}')
-
     
-    print(arguments)
+    """
+    Downloading
+    """
     if (arguments['download']):
 
         if (arguments['single']):
@@ -49,8 +50,25 @@ if __name__ == '__main__':
             pages = arguments['<pages>'].split(',')
             download_pages(spark, pages)
 
-    if (arguments['compare']):
+    """
+    Uploading
+    """
+    if (arguments['upload']):
 
             if (arguments['all']):
-                scores = compare_files(spark)
+                upload_pages(session)
+                # scores = compare_files(spark)
+                # print(scores)
+
+
+    """
+    Comparing
+    """
+    if (arguments['compare']):
+
+            if (arguments['local']):
+                scores = compare_files_local(spark)
                 print(scores)
+
+            if (arguments['cloud']):
+                compare_files_cloud(spark, session)

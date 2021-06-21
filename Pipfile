@@ -8,6 +8,8 @@ dynaconf = "*"
 docopt = "*"
 mwclient = "*"
 pyspark = "*"
+boto3 = "*"
+asyncio = "*"
 
 [dev-packages]
 

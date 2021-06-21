@@ -56,14 +56,13 @@ def download_page(name, force=False):
         print(f'[EXISTS] {name}')
         return False
 
-    print(f'[START] {name}')
+    revision_count = len(list(page.revisions()))
+
+    print(f'[START] {name}, with {revision_count} revisions')
 
     for i, (info, content) in enumerate(zip(page.revisions(), page.revisions(prop='content'))):
         info['timestamp'] = time.strftime("%Y-%m-%dT%H:%M:%S", info['timestamp'])
         links = get_references_from_page_content(content)
-
-        if (i % 50 == 0):
-            print(f'revision {i} done')
 
 
         version = {

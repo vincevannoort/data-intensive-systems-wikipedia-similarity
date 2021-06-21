@@ -2,16 +2,28 @@ import glob
 import itertools
 import json
 import statistics
+import boto3
 
 def lambda_handler(event, context):
     """
     The lambda handler
     """
     print("Started lambda handler")
+    session = boto3.Session()
+    s3_client = session.client('s3')
+
+    bucket = 'data-intensive-storage'
+    key1 = event['key1']
+    key2 = event['key2']
+
+    s3_object_1 = s3_client.get_object(Bucket='data-intensive-storage', Key=key1)
+    s3_object_2 = s3_client.get_object(Bucket='data-intensive-storage', Key=key2)
+
+    json_object_1 = json.loads(s3_object_1['Body'].read())
+    json_object_2 = json.loads(s3_object_2['Body'].read())
+
     print("Finished lambda handler")
-    return {
-        'similarity': compare_two_files(event['file1'], event['file2'])
-    }
+    return compare_two_files(json_object_1, json_object_2)
 
 def jaccard_similarity(list1, list2):
     intersection = len(list(set(list1).intersection(list2)))

@@ -24,8 +24,24 @@ def lambda_handler(event, context):
     json_object_1 = json.loads(s3_object_1['Body'].read())
     json_object_2 = json.loads(s3_object_2['Body'].read())
 
+    file_1_id = key1.split('-')[0]
+    file_2_id = key2.split('-')[0]
+
+    result = compare_two_files(file_1_id, file_2_id, json_object_1, json_object_2)
+    key, score = result
+
+    dynamodb_client = session.resource('dynamodb', 'us-east-1')
+    table = dynamodb_client.Table('data-intensive-database')
+
+    response = table.put_item(
+       Item={
+            'relationCombinationId': key,
+            'score': score,
+        }
+    )
+
     print("Finished lambda handler")
-    return compare_two_files(json_object_1, json_object_2)
+    return result
 
 def jaccard_similarity(list1, list2):
     intersection = len(list(set(list1).intersection(list2)))

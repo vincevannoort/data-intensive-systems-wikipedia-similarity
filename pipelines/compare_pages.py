@@ -72,7 +72,7 @@ async def compare_files_cloud(spark, session):
         (key1, key2) = perm
         result = lambda_client.invoke(
             FunctionName='page-history-similarity',
-            InvocationType='RequestResponse',
+            InvocationType='Event',
             Payload=bytes(
                 json.dumps({
                 'key1': key1,
@@ -82,7 +82,8 @@ async def compare_files_cloud(spark, session):
             )
         )
         print(f'done: {perm}')
-        return json.loads(result['Payload'].read())
+        return True
+        # return json.loads(result['Payload'].read())
 
 
     with ThreadPoolExecutor(max_workers=5000) as executor:

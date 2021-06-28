@@ -67,12 +67,12 @@ def compare_two_files(file_1_id, file_2_id, file_1_json, file_2_json) -> float:
 
         file_a_last_date = to_date_time(file_1_json[-1]['info']['timestamp'])
         file_b_last_date = to_date_time(file_2_json[-1]['info']['timestamp'])
-        second_oldest_date = file_a_last_date if file_a_last_date < file_b_last_date else file_b_last_date
+        first_comparable_date = file_b_last_date if file_a_last_date < file_b_last_date else file_a_last_date
 
         # compare from start to time now
         now = datetime.now()
-        file_a_total_difference = now - file_a_last_date 
-        file_b_total_difference = now - file_b_last_date
+        file_a_total_difference = now - first_comparable_date 
+        file_b_total_difference = now - first_comparable_date
 
         def is_not_first_revision(index):
             return index != 0
@@ -93,31 +93,30 @@ def compare_two_files(file_1_id, file_2_id, file_1_json, file_2_json) -> float:
             # calculate how much of the total time this revision was
             ratio = file_a_difference.total_seconds() / file_a_total_difference.total_seconds()
             total_ratio = total_ratio + ratio
-            print(similarity)
             score = ratio * similarity
             similarities.append(score)
 
-
-        # TODO: do similarities other way around
-
         if (len(similarities) == 0):
-            return 0
+            return None
 
-        print(f'total_ratio: {total_ratio}')
+        score = sum(similarities) / total_ratio
+
         # sum the scores, since we already applied the ratio to every each
-        return sum(similarities)
+        return score
 
     def get_similarity_score_dual_sided(file_a_versions, file_b_versions, file_a_json, file_b_json):
-        print('side a')
         side_a_score = get_similarity_score_single_side(file_a_versions, file_b_versions, file_a_json, file_b_json)
-        print('side b')
         side_b_score = get_similarity_score_single_side(file_b_versions, file_a_versions, file_b_json, file_a_json)
-        print(side_a_score, side_b_score)
-        # return (side_a_score + side_b_score) / 2
-        return side_a_score
+        if ((side_a_score is None) and (side_b_score is None)):
+            raise Exception("invalid scores")
+        elif (side_a_score is None):
+            return side_b_score
+        elif (side_b_score is None):
+            return side_a_score
+        else:
+            return (side_a_score + side_b_score) / 2
 
     def get_key(file_1_id, file_2_id):
-        # print(file_1_id, file_2_id)
         if (int(file_1_id) < int(file_2_id)):
             return f'{file_1_id}:{file_2_id}'
         else:

@@ -12,6 +12,7 @@ Examples:
   main.py download multiple 'The Seven Pillars of Life','Life','Biological organisation','Carbon-based life','Living systems','Non-cellular life'
 """
 
+import asyncio
 from config import settings
 from pipelines.compare_pages import compare_files_local, compare_files_cloud
 from pipelines.download_pages import download_pages
@@ -23,10 +24,11 @@ import boto3
 
 conf = SparkConf().setAppName('WikipediaSimilarity').setMaster('local[*]')
 spark = SparkContext(conf=conf)
+# spark = None
 
 session = boto3.Session(
     aws_access_key_id = settings['aws_access_key_id'],
-    aws_secret_access_key = settings['aws_access_access_key'],
+    aws_secret_access_key = settings['aws_secret_access_key'],
     aws_session_token = settings['aws_session_token']
 )
 
@@ -71,4 +73,7 @@ if __name__ == '__main__':
                 print(scores)
 
             if (arguments['cloud']):
-                compare_files_cloud(spark, session)
+                # compare_files_cloud(spark, session)
+                loop = asyncio.get_event_loop()
+                future = asyncio.ensure_future(compare_files_cloud(spark, session))
+                loop.run_until_complete(future)

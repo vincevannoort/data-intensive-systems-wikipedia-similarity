@@ -3,6 +3,7 @@ import itertools
 import json
 import statistics
 import boto3
+import datetime
 
 def lambda_handler(event, context):
     """
@@ -58,13 +59,36 @@ def compare_two_files(file_1_json, file_2_json) -> float:
     """
     version_pairs = [(file_1_version_index, find_closest_version(file_1_version)) for (file_1_version_index, file_1_version) in enumerate(file_1_versions)]
 
+    def to_date_time(date_time_string):
+        return datetime.datetime.strptime(date_time_string, "%Y-%m-%dT%H:%M:%S")
+
+    file_1_first_date = to_date_time(file_1_json[0]['info']['timestamp'])
+    file_1_last_date = to_date_time(file_1_json[-1]['info']['timestamp'])
+    file_2_first_date = to_date_time(file_2_json[0]['info']['timestamp'])
+    file_2_last_date = to_date_time(file_2_json[-1]['info']['timestamp'])
+    file_1_total_difference = file_1_first_date - file_1_last_date
+    file_2_total_difference = file_2_first_date - file_2_last_date
+    # print(file_1_difference.total_minutes())
 
     for (file_1_version_index, file_2_version_index) in version_pairs:
         if (file_2_version_index is None):
             continue
+        # calculate similarity score
         file_1_links = file_1_json[file_1_version_index]['links']
         file_2_links = file_2_json[file_2_version_index]['links']
         similarity = jaccard_similarity(file_1_links, file_2_links)
+
+        file_1_date = to_date_time(file_1_json[file_1_version_index]['info']['timestamp'])
+        file_1_difference = file_1_first_date - file_1_date
+        print(file_1_difference.total_seconds() / file_1_total_difference.total_seconds())
+        # file_2_date = file_2_json[file_2_version_index]['info']['timestamp']
+        # file_1_version = file_1_json[file_1_version_index]['links']
         similarities.append(similarity)
+
+
+    # TODO: do similarities other way around
+
+    if (len(similarities) == 0):
+        return 0
 
     return statistics.mean(similarities)

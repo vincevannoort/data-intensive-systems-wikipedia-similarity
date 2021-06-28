@@ -3,8 +3,10 @@ import glob
 import itertools
 import json
 import statistics
+import asyncio
 from typing import Tuple, List
 from config import settings
+from concurrent.futures import ThreadPoolExecutor
 from cloud_functions.compare_two_pages import compare_two_files
 
 def get_files_list() -> List[str]:
@@ -29,13 +31,16 @@ def compare_files_local(spark):
     parallel_perms_map_result = parallel_perms.map(open_files_and_compare)
     print(parallel_perms_map_result.collect())
 
-def compare_files_cloud(spark, session):
+    print(f'[PERM AMOUNT]: {len(perms)}')
+
+async def compare_files_cloud(spark, session):
     s3_client = session.client('s3', 'us-east-1')
     bucket = s3_client.list_objects(Bucket='data-intensive-storage')['Contents']
     files = [file['Key'] for file in bucket]
     perms = make_permutations(files)
 
     def compare_files(perm):
+        # print(f'starting: {perm}')
         lambda_client = session.client('lambda', 'us-east-1')
         (key1, key2) = perm
         result = lambda_client.invoke(
@@ -49,12 +54,25 @@ def compare_files_cloud(spark, session):
                 encoding='utf8'
             )
         )
+        # print(f'done: {perm}')
         return json.loads(result['Payload'].read())
 
-    parallel_perms = spark.parallelize(perms)
-    parallel_perms_map_result = parallel_perms.map(compare_files)
-    print(parallel_perms_map_result.collect())
 
+    with ThreadPoolExecutor(max_workers=5000) as executor:
+        loop = asyncio.get_event_loop()
+        tasks = [
+            loop.run_in_executor(
+                executor,
+                compare_files,
+                perm
+            )
+            for perm in perms
+        ]
+        for response in await asyncio.gather(*tasks):
+            print(response)
+            pass
+
+    print(f'[PERM AMOUNT]: {len(perms)}')
     # tasks = [compare_files(perm) for perm in perms]
     # loop = asyncio.get_event_loop()
     # cors = asyncio.wait(tasks)

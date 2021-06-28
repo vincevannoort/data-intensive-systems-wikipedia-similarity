@@ -10,22 +10,38 @@
     },
     "links": [
       "aaa",
-      "bbb",
-      "life"
+        "bbb",
+        "life"
     ]
   },
   {
     "info": {
-      "revid": 2,
+      "revid": 1,
       "parentid": 1019589374,
       "minor": "",
       "user": "OAbot",
-      "timestamp": "2021-05-02T17:42:00",
+      "timestamp": "2020-05-04T17:42:00",
       "comment": "[[Wikipedia:OABOT|Open access bot]]: hdl added to citation with #oabot."
     },
     "links": [
       "aaa",
-      "bbb"
+        "bbb",
+        "life"
+    ]
+  },
+  {
+    "info": {
+      "revid": 1,
+      "parentid": 1019589374,
+      "minor": "",
+      "user": "OAbot",
+      "timestamp": "2019-05-04T17:42:00",
+      "comment": "[[Wikipedia:OABOT|Open access bot]]: hdl added to citation with #oabot."
+    },
+    "links": [
+      "aaa",
+        "bbb",
+        "life"
     ]
   }
 ]

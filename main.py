@@ -69,7 +69,7 @@ if __name__ == '__main__':
     if (arguments['compare']):
 
             if (arguments['local']):
-                scores = compare_files_local(spark)
+                scores = compare_files_local(spark, session)
                 print(scores)
 
             if (arguments['cloud']):

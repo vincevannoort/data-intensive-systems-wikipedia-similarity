@@ -31,14 +31,32 @@ def lambda_handler(event, context):
     key, score = result
 
     dynamodb_client = session.resource('dynamodb', 'us-east-1')
-    table = dynamodb_client.Table('data-intensive-database')
 
-    response = table.put_item(
-       Item={
-            'relationCombinationId': key,
-            'score': score,
-        }
-    )
+    # add score to table
+    def add_similarity_to_database():
+        table = dynamodb_client.Table('data-intensive-database')
+        response = table.put_item(
+            Item = {
+                'relationCombinationId': key,
+                'score': score,
+            }
+        )
+
+    def add_name_to_database(file_name):
+        table = dynamodb_client.Table('data-intensive-names')
+        file_parts = key1.split('-', 1)
+        page_id = file_parts[0]
+        name = file_parts[1].replace('.json', '')
+        response = table.put_item(
+            Item = {
+                'pageId': page_id,
+                'name': name,
+            }
+        )
+
+    add_similarity_to_database()
+    add_name_to_database(key1)
+    add_name_to_database(key2)
 
     print("Finished lambda handler")
     return result

@@ -10,6 +10,8 @@ mwclient = "*"
 pyspark = "*"
 boto3 = "*"
 asyncio = "*"
+py2neo = "*"
+neo4j = "*"
 
 [dev-packages]
 

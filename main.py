@@ -6,6 +6,8 @@ Usage:
   main.py upload all
   main.py compare local
   main.py compare cloud
+  main.py generate output
+  main.py generate graph
 
 Examples:
   main.py download single 'The Seven Pillars of Life'
@@ -17,6 +19,8 @@ from config import settings
 from pipelines.compare_pages import compare_files_local, compare_files_cloud
 from pipelines.download_pages import download_pages
 from pipelines.upload_pages import upload_pages
+from pipelines.create_output import create_output
+from pipelines.create_graph import create_graph
 from cloud_functions.download_page import download_page
 from docopt import docopt
 from pyspark import SparkContext, SparkConf
@@ -77,3 +81,14 @@ if __name__ == '__main__':
                 loop = asyncio.get_event_loop()
                 future = asyncio.ensure_future(compare_files_cloud(spark, session))
                 loop.run_until_complete(future)
+
+    """
+    Output
+    """
+    if (arguments['generate']):
+
+            if (arguments['output']):
+                create_output(session)
+
+            if (arguments['graph']):
+                create_graph(session)

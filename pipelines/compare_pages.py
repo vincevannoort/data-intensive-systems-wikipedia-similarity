@@ -38,6 +38,7 @@ def store_result_in_dynamo(result):
 
     dynamodb_client = session.resource('dynamodb', 'us-east-1')
 
+    
     table = dynamodb_client.Table('data-intensive-database')
     response = table.put_item(
        Item={
@@ -71,9 +72,9 @@ async def compare_files_cloud(spark, session):
         lambda_client = session.client('lambda', 'us-east-1')
         (key1, key2) = perm
         result = lambda_client.invoke(
-            FunctionName='page-history-similarity',
-            InvocationType='Event',
-            Payload=bytes(
+            FunctionName = 'page-history-similarity',
+            InvocationType = 'Event',
+            Payload = bytes(
                 json.dumps({
                 'key1': key1,
                 'key2': key2,

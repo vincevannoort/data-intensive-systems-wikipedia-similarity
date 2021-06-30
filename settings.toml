@@ -1,1 +1,2 @@
 data_folder = "data"
+minimum_similarity_score = 0.01

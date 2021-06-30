@@ -1,9 +1,10 @@
-from neo4j import GraphDatabase
 import csv
+from neo4j import GraphDatabase
+from config import settings
 
 # MERGE (n:Person {name: 'Andy', title: 'Developer'})
 
-def create_graph(session, minimum_similarity_score=0.01):
+def create_graph(session):
 
     # show all pages with their 
 
@@ -28,6 +29,7 @@ def create_graph(session, minimum_similarity_score=0.01):
     # ORDER BY m.score DESC
     # LIMIT 1
 
+    minimum_similarity_score = settings['minimum_similarity_score']
 
     dynamodb_client = session.resource('dynamodb', 'us-east-1')
     names_table = dynamodb_client.Table('data-intensive-names')

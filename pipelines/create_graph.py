@@ -5,6 +5,30 @@ import csv
 
 def create_graph(session, minimum_similarity_score=0.01):
 
+    # show all pages with their 
+
+    # MATCH (n:Page)-[s:similarity]-(m:Page) 
+    # RETURN n,s
+
+    # show all pages with a similarity score higher than 0.1
+
+    # MATCH (n:Page)-[s:similarity]-(m:Page) 
+    # WHERE s.score > 0.1
+    # RETURN n
+
+    # find highest similarity score node
+
+    # MATCH (n:Page { name: 'Carbon-based life' })-[s:similarity]-(m:Page) 
+    # RETURN n, m 
+    # ORDER BY m.score DESC
+    # LIMIT 1
+
+    # MATCH (n:Page { name: 'Carbon-based life' })-[s:similarity]-(m:Page) 
+    # RETURN m
+    # ORDER BY m.score DESC
+    # LIMIT 1
+
+
     dynamodb_client = session.resource('dynamodb', 'us-east-1')
     names_table = dynamodb_client.Table('data-intensive-names')
     similarity_table = dynamodb_client.Table('data-intensive-database')

@@ -1,0 +1,26 @@
+% download entities
+entities_names = ['Eggs', 'Nature', 'Stars']
+entities = spark.parallelize(entities_names)
+entities
+    .map((entity) => {
+        entity
+        .download_page()
+        .store_in_s3()
+        return done
+    })
+    .collect()
+
+% compare entities
+entities_files = retrieve_entities_from_s3()
+file_combinations = make_combinations(entities_files)
+combinations = spark.parallelize(file_combinations)
+combinations
+    .map((combination) => {
+        score = combination.calculate_similarity()
+        return score
+    })
+    .map((score) => {
+        store_similarity_result_in_dynamo(score)
+        return done
+    })
+    .collect()

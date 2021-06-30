@@ -28,26 +28,26 @@ def open_files_and_compare(files: Tuple[str, str]):
         return score
 
 def store_result_in_dynamo(result):
-    key, score = result
+    # key, score = result
 
-    session = boto3.Session(
-        aws_access_key_id = settings['aws_access_key_id'],
-        aws_secret_access_key = settings['aws_secret_access_key'],
-        aws_session_token = settings['aws_session_token']
-    )
+    # session = boto3.Session(
+    #     aws_access_key_id = settings['aws_access_key_id'],
+    #     aws_secret_access_key = settings['aws_secret_access_key'],
+    #     aws_session_token = settings['aws_session_token']
+    # )
 
-    dynamodb_client = session.resource('dynamodb', 'us-east-1')
+    # dynamodb_client = session.resource('dynamodb', 'us-east-1')
 
     
-    table = dynamodb_client.Table('data-intensive-database')
-    response = table.put_item(
-       Item={
-            'relationCombinationId': key,
-            'score': score,
-        }
-    )
+    # table = dynamodb_client.Table('data-intensive-database')
+    # response = table.put_item(
+    #    Item={
+    #         'relationCombinationId': key,
+    #         'score': score,
+    #     }
+    # )
 
-    print(f'stored result: {key} -> {score}')
+    # print(f'stored result: {key} -> {score}')
     
     return True
 
@@ -67,6 +67,8 @@ async def compare_files_cloud(spark, session):
     files = [file['Key'] for file in bucket]
     perms = make_permutations(files)
 
+    print(f'[PERM AMOUNT]: {len(perms)}')
+
     def compare_files(perm):
         print(f'starting: {perm}')
         lambda_client = session.client('lambda', 'us-east-1')
@@ -84,7 +86,6 @@ async def compare_files_cloud(spark, session):
         )
         print(f'done: {perm}')
         return True
-        # return json.loads(result['Payload'].read())
 
 
     with ThreadPoolExecutor(max_workers=5000) as executor:
@@ -101,46 +102,4 @@ async def compare_files_cloud(spark, session):
             print(response)
             pass
 
-    # loop = asyncio.get_event_loop()
-    # objects = await asyncio.gather(*[loop.run_in_executor(None, compare_files, perm) for perm in perms])
-    # loop.run_until_complete(main())
-
     print(f'[PERM AMOUNT]: {len(perms)}')
-    # tasks = [compare_files(perm) for perm in perms]
-    # loop = asyncio.get_event_loop()
-    # cors = asyncio.wait(tasks)
-    # loop.run_until_complete(cors)
-    # print(results)
-
-    # import asyncio
-    # import time
-
-
-    # async def sum(name):
-    #     total = 0
-    #     for number in numbers:
-    #         print(f'Task {name}: Computing {total}+{number}')
-    #         total += number
-    #     print(f'Task {name}: Sum = {total}\n')
-
-
-    # loop = asyncio.get_event_loop()
-    # tasks = [loop.create_task(compare_files(perm)) for perm in perms]
-    # loop.run_until_complete(asyncio.wait(tasks))
-    # loop.close()
-
-
-
-    # result = lambda_client.invoke(
-    #     FunctionName='page-history-similarity',
-    #     InvocationType='RequestResponse',
-    #     Payload=bytes(
-    #         json.dumps({
-    #         'key1': '16554664-Living systems.json',
-    #         'key2': '8553751-Biological organisation.json',
-    #         }), 
-    #         encoding='utf8'
-    #     )
-    # )
-
-    # print(json.loads(result['Payload'].read()))

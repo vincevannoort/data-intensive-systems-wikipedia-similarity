@@ -8,6 +8,7 @@ Usage:
   main.py compare cloud
   main.py generate output
   main.py generate graph
+  main.py analysis total revisions
 
 Examples:
   main.py download single 'The Seven Pillars of Life'
@@ -20,6 +21,7 @@ from pipelines.compare_pages import compare_files_local, compare_files_cloud
 from pipelines.download_pages import download_pages
 from pipelines.upload_pages import upload_pages
 from pipelines.create_output import create_output
+from pipelines.data_analysis import calculate_total_revision_count
 from pipelines.create_graph import create_graph
 from cloud_functions.download_page import download_page
 from docopt import docopt
@@ -57,14 +59,20 @@ if __name__ == '__main__':
             download_pages(spark, pages)
 
     """
+    Analysis
+    """
+    if (arguments['analysis']):
+
+            if (arguments['revisions']):
+                revisions = calculate_total_revision_count()
+                print(f'total number of revisions: {revisions}')
+    """
     Uploading
     """
     if (arguments['upload']):
 
             if (arguments['all']):
                 upload_pages(session)
-                # scores = compare_files(spark)
-                # print(scores)
 
 
     """
@@ -83,7 +91,7 @@ if __name__ == '__main__':
                 loop.run_until_complete(future)
 
     """
-    Output
+    Generating
     """
     if (arguments['generate']):
 
